@@ -124,9 +124,10 @@ void send(){
 void setup()
 {
   // put your setup code here, to run once:
-  for (int i = 3; i <= 9; i++){
+  for (int i = 3; i <= 10; i++){
     pinMode(i, OUTPUT);
   }
+  pinMode(11,INPUT);
   pinMode(A0, INPUT);
   pinMode(A1, INPUT);
   pinMode(A2, INPUT);
@@ -137,13 +138,22 @@ void setup()
 
 void loop()
 {
-  int left_v = analogRead(A1);
-  int left_h = analogRead(A2);
-  int right_v = analogRead(A3);
-  int right_h = analogRead(A4);
+  int hit = analogRead(A4);
+  if(hit>100){
+    waiter();
+  }
 
 
   stickcheck();
   decide_cat();
   send();
+}
+
+void waiter{
+  digitalWrite(10,HIGH);
+  while(true){
+    if(digitalRead(11)=HIGH){
+      break;
+    }
+  }
 }

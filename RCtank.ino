@@ -47,7 +47,7 @@ void stickcheck(){
 }
 
 
-int decide_cat(){
+void decide_cat(){
 
   if(ultra_pivot_turn){
     speed_left , speed_right = 255*level;
@@ -60,10 +60,7 @@ int decide_cat(){
     }
     if(level==0){
       ultra_pivot_turn = false;
-      for(int k=0;k<=2;k++){
-        timer[k] = 0;
-        timer_flag[k] = false;
-      }
+      
     }
     
   }else{
@@ -95,18 +92,7 @@ int decide_cat(){
 
     right_cat,left_cat = cat_common; //左右のキャタピラの方向を確定
 
-    if(level<0.1 && !timer_flag[0]){ //超信地旋回用判定1
-      timer[0] = millis();
-      timer_flag[0] = true;
-    }
-    if(level<0.1 && timer_flag[0] && timer_flag[1] && millis()-timer[1]<100){ //超信地旋回用判定3 , 超信地旋回操作
-      ultra_pivot_turn = true;
-    }
     
-    if(level>0.9 && timer_flag[0] && timer[0]-millis()<100){ //超信地旋回用判定2
-      timer[1]=millis();
-      timer_flag[1] = true;
-    }
   }
 }
 
@@ -142,18 +128,22 @@ void loop()
   if(hit>100){
     waiter();
   }
-
-
+  if(digitalRead(12)==HIGH){
+    digitalWrite(9,HIGH);
+    delay(50);
+    digitalWrite(9,LOW);
+  }
+  ultra_pivot_turn = (digitalRead(13)==HIGH)?ture:false;
   stickcheck();
   decide_cat();
   send();
 }
 
-void waiter{
+void waiter{  //waiterを起動すると無限ループで待機し、リセットボタンを押すことでリセットする
   digitalWrite(10,HIGH);
   while(true){
     if(digitalRead(11)=HIGH){
-      break;
+      asm volatile ("  jmp 0"); 
     }
   }
 }

@@ -4,52 +4,54 @@
 #define STICK_IDLE 10
 #define VRNG (410-deg)
 
+
 bool cat_common;
 bool right_cat;
 bool left_cat;
-bool turret_roll
-int speed_common;
-int speed_right;
-int speed_left;
-int speed_turret;
-short stick1[2];
-short stick2[2];
-double level;  
+bool turret_roll;
+short speed_common;
+short speed_right;
+short speed_left;
+short speed_turret;
 bool r_l;
-unsigned long timer[2];
-bool timer_flag[2];
 bool ultra_pivot_turn = false;
 
 
-void stickcheck(){
-  stick1[0] = stick1[0]*0.9+(analogRead(A0)-1023/2) * 0.1;
-  stick1[1] = stick1[1]*0.9+(analogRead(A1)-1023/2) * 0.1;
-  stick2[0] = stick2[0]*0.9+(analogRead(A2)-1023/2) * 0.1;
-  stick2[1] = stick2[1]*0.9+(analogRead(A3)-1023/2) * 0.1;
+/*bool direction[4]
+  int speed[4]
+  short sticks[4]//lr,vhの順
+  double level
+  bool r_l
+  */
 
-  for(int i = 0;i<=1;i++){
-    char deg = (stick1[i]>0)? 1 : -1;
-    stick1[i] = (abs(stick1[i])<STICK_IDLE) ? 0 : stick1[i]-(STICK_IDLE*deg);
-    stick1[i] = constrain(stick1[i], VRNG * -1, VRNG);
-  }
-  for(int j = 0;j<=1;j++){
-    char deg = (stick1[j]>0)? 1 : -1;
-    stick2[j] = (abs(stick2[j])<STICK_IDLE) ? 0 : stick2[j]-(STICK_IDLE*deg);
-    stick2[j] = constrain(stick2[j], VRNG * -1, VRNG);
-  }
+void stickcheck(short sticks[4]){
+  sticks[0] = sticks[0]*0.9+(analogRead(A0)-1023/2) * 0.1;
+  sticks[1] = sticks[1]*0.9+(analogRead(A1)-1023/2) * 0.1;
+  sticks[2] = sticks[0]*0.9+(analogRead(A2)-1023/2) * 0.1;
+  sticks[3] = sticks[1]*0.9+(analogRead(A3)-1023/2) * 0.1;
 
-
-  if(stick1[1]<0){
-    level = stick1[1]*1/400 +1;
-    r_l = true;  //左折がtrue
-  } else{
-    level = -1* stick1[1]* 1/400 +1;
-    r_l = false;
+  byte i;
+  char deg;
+  for(i=0;i<=3;i++){
+    deg = (sticks[i]>0)? 1 : -1;
+    sticks[i] = (abs(sticks[i])<STICK_IDLE) ? 0 : sticks[i]-(STICK_IDLE*deg);
+    sticks[i] = constrain(sticks[i], VRNG * -1, VRNG);
   }
 }
 
 
-void decide_cat(){
+void decider(){
+  short sticks[4];
+  stickcheck(sticks); 
+
+  short level;
+  if(sticks[1]<0){
+    level = sticks[1]*1/400 +1;
+    r_l = true;  //左折がtrue
+  } else{
+    level = -1* sticks[1]* 1/400 +1;
+    r_l = false;
+  }
 
   if(ultra_pivot_turn){
     speed_left , speed_right = 255*level;
@@ -59,15 +61,10 @@ void decide_cat(){
     }else{
       left_cat = true;
       right_cat = false;
-    }
-    if(level==0){
-      ultra_pivot_turn = false;
-      
-    }
-    
+    }  
   }else{
 
-    speed_common = stick1[0]*51/80; //Lstick verticalから基準速度を確定
+    speed_common = sticks[0]*51/80; //Lstick verticalから基準速度を確定
     if(speed_common<0){
       speed_common *= -1;
       cat_common = false;
@@ -76,11 +73,11 @@ void decide_cat(){
     }
     /* double level;  //旋回の基準数値を算出
       bool r_l;
-      if(stick1[1]<0){
-        level = stick1[1]*1/400 +1;
+      if(sticks[1]<0){
+        level = sticks[1]*1/400 +1;
         r_l = true;  //左折がtrue
       } else{
-        level = -1* stick1[1]* 1/400 +1;
+        level = -1* sticks[1]* 1/400 +1;
         r_l = false;
       }*/
 
@@ -95,17 +92,14 @@ void decide_cat(){
     right_cat,left_cat = cat_common; //左右のキャタピラの方向を確定
 
     
-  }
-}
-
-void decide_turret(){
-   speed_turret= stick2[0]*51/80; //Rstick holizontalから基準速度を確定
+    speed_turret= sticks[3]*51/80; //Rstick holizontalから基準速度を確定
     if(speed_turret<0){
       speed_turret *= -1;
       turret_roll = false;
     }else{
       turret_roll = true;
     }
+  }
 }
 
 void send(){
@@ -146,17 +140,15 @@ void loop()
     delay(50);
     digitalWrite(9,LOW);
   }
-  ultra_pivot_turn = (digitalRead(13)==HIGH)?　true:false;
-  stickcheck();
-  decide_cat();
-  decide_turret();
+  ultra_pivot_turn = (digitalRead(13)==HIGH)? true:false;
+  decider();
   send();
 }
 
-void waiter{  //waiterを起動すると無限ループで待機し、リセットボタンを押すことでリセットする
+void waiter(){  //waiterを起動すると無限ループで待機し、リセットボタンを押すことでリセットする
   digitalWrite(10,HIGH);
   while(true){
-    if(digitalRead(11)=HIGH){
+    if(digitalRead(11)==HIGH){
       asm volatile ("  jmp 0"); 
     }
   }

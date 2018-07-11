@@ -133,7 +133,7 @@ void loop()
     delay(50);
     digitalWrite(9,LOW);
   }
-  ultra_pivot_turn = (digitalRead(13)==HIGH)?ture:false;
+  ultra_pivot_turn = (digitalRead(13)==HIGH)?　true:false;
   stickcheck();
   decide_cat();
   send();

@@ -7,9 +7,11 @@
 bool cat_common;
 bool right_cat;
 bool left_cat;
+bool turret_roll
 int speed_common;
 int speed_right;
 int speed_left;
+int speed_turret;
 short stick1[2];
 short stick2[2];
 double level;  
@@ -96,9 +98,20 @@ void decide_cat(){
   }
 }
 
+void decide_turret(){
+   speed_turret= stick2[0]*51/80; //Rstick holizontalから基準速度を確定
+    if(speed_turret<0){
+      speed_turret *= -1;
+      turret_roll = false;
+    }else{
+      turret_roll = true;
+    }
+}
+
 void send(){
   analogWrite(7,speed_left);
   analogWrite(8,speed_right);
+  analogWrite(9,speed_turret);
 
   int digitalPinValue[3];
   digitalPinValue[0] = (left_cat)? HIGH:LOW;
@@ -136,6 +149,7 @@ void loop()
   ultra_pivot_turn = (digitalRead(13)==HIGH)?　true:false;
   stickcheck();
   decide_cat();
+  decide_turret();
   send();
 }
 

@@ -24,27 +24,31 @@ bool ultra_pivot_turn = false;
   bool r_l
   */
 
-void stickcheck(short sticks[4]){
+void stickcheck(double sticks[4]){
   sticks[0] = sticks[0]*0.9+(analogRead(A0)-1023/2) * 0.1;
   sticks[1] = sticks[1]*0.9+(analogRead(A1)-1023/2) * 0.1;
   sticks[2] = sticks[0]*0.9+(analogRead(A2)-1023/2) * 0.1;
   sticks[3] = sticks[1]*0.9+(analogRead(A3)-1023/2) * 0.1;
+
+  
 
   byte i;
   char deg;
   for(i=0;i<=3;i++){
     deg = (sticks[i]>0)? 1 : -1;
     sticks[i] = (abs(sticks[i])<STICK_IDLE) ? 0 : sticks[i]-(STICK_IDLE*deg);
-    sticks[i] = constrain(sticks[i], VRNG * -1, VRNG);
+    sticks[i] = constrain(sticks[i], -400, 400);
   }
+  
 }
 
 
 void decider(){
-  short sticks[4];
-  stickcheck(sticks); 
+  double sticks[4];
+  stickcheck(sticks);
+  
 
-  short level;
+  double level;
   if(sticks[1]<0){
     level = sticks[1]*1/400 +1;
     r_l = true;  //左折がtrue
@@ -52,6 +56,8 @@ void decider(){
     level = -1* sticks[1]* 1/400 +1;
     r_l = false;
   }
+
+  
 
   if(ultra_pivot_turn){
     speed_left , speed_right = 255*level;
@@ -61,8 +67,9 @@ void decider(){
     }else{
       left_cat = true;
       right_cat = false;
-    }  
+    }    
   }else{
+
 
     speed_common = sticks[0]*51/80; //Lstick verticalから基準速度を確定
     if(speed_common<0){
@@ -71,6 +78,8 @@ void decider(){
     }else{
       cat_common = true;
     }
+
+    
     /* double level;  //旋回の基準数値を算出
       bool r_l;
       if(sticks[1]<0){
@@ -103,20 +112,25 @@ void decider(){
 }
 
 void send(){
-  analogWrite(7,speed_left);
-  analogWrite(8,speed_right);
-  analogWrite(9,speed_turret);
+  analogWrite(9,speed_left);
+  analogWrite(10,speed_right);
+  analogWrite(11,speed_turret);
 
   int digitalPinValue[3];
   digitalPinValue[0] = (left_cat)? HIGH:LOW;
   digitalPinValue[1] = (right_cat)? HIGH:LOW;
   //digitalPinValue[2] = (turret_roll)? HIGH:LOW;
 
+  digitalWrite(0,digitalPinValue[0]);
+  digitalWrite(1,digitalPinValue[1]);
+  digitalWrite(2,digitalPinValue[2]);
+
 }
 
 void setup()
 {
   // put your setup code here, to run once:
+  Serial.begin(9600);
   for (int i = 3; i <= 10; i++){
     pinMode(i, OUTPUT);
   }

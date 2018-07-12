@@ -1,5 +1,3 @@
-#include <Arduino.h>
-#include <stdlib.h>
 
 #define STICK_IDLE 10
 #define VRNG (410-deg)
@@ -32,7 +30,7 @@ void stickcheck(double sticks[4]){
 
   
 
-  byte i;
+  char i;
   char deg;
   for(i=0;i<=3;i++){
     deg = (sticks[i]>0)? 1 : -1;
@@ -60,7 +58,7 @@ void decider(){
   
 
   if(ultra_pivot_turn){
-    speed_left , speed_right = 255*level;
+    speed_left , speed_right = (level<0)?0:255*level;
     if(r_l){
       left_cat = false;
       right_cat = true;
@@ -98,7 +96,12 @@ void decider(){
       speed_right = (level<0.2) ? 0 : speed_common * (1.25*level-0.25);
     }
 
-    right_cat,left_cat = cat_common; //左右のキャタピラの方向を確定
+    right_cat = cat_common; 
+    left_cat = cat_common;//左右のキャタピラの方向を確定
+
+    Serial.print(speed_left);
+Serial.print(" : ");
+Serial.println(speed_right);
 
     
     speed_turret= sticks[3]*51/80; //Rstick holizontalから基準速度を確定
@@ -121,9 +124,9 @@ void send(){
   digitalPinValue[1] = (right_cat)? HIGH:LOW;
   //digitalPinValue[2] = (turret_roll)? HIGH:LOW;
 
-  digitalWrite(0,digitalPinValue[0]);
-  digitalWrite(1,digitalPinValue[1]);
-  digitalWrite(2,digitalPinValue[2]);
+  digitalWrite(3,digitalPinValue[0]);
+  digitalWrite(4,digitalPinValue[1]);
+  digitalWrite(5,digitalPinValue[2]);
 
 }
 
@@ -151,8 +154,21 @@ void loop()
   }
   if(digitalRead(12)==HIGH){
     digitalWrite(9,HIGH);
+    if(analogRead(A5)>=500){
+      digitalWrite(3,LOW);
+      digitalWrite(4,LOW);
+    }else{
+      digitalWrite(3,HIGH);
+      digitalWrite(4,HIGH);
+    }
+    analogWrite(9,255);
+    analogWrite(10,255);
+
     delay(50);
+
     digitalWrite(9,LOW);
+    analogWrite(9,0);
+    analogWrite(10,0);
   }
   ultra_pivot_turn = (digitalRead(13)==HIGH)? true:false;
   decider();

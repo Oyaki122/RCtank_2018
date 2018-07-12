@@ -58,7 +58,7 @@ void decider(){
   
 
   if(ultra_pivot_turn){
-    speed_left , speed_right = (level<0)?0:255*level;
+    speed_left , speed_right = 255*(-1*level+1);
     if(r_l){
       left_cat = false;
       right_cat = true;
@@ -99,19 +99,19 @@ void decider(){
     right_cat = cat_common; 
     left_cat = cat_common;//左右のキャタピラの方向を確定
 
-    Serial.print(speed_left);
-Serial.print(" : ");
-Serial.println(speed_right);
+  }
 
-    
-    speed_turret= sticks[3]*51/80; //Rstick holizontalから基準速度を確定
+  speed_turret= sticks[3]*51/80; //Rstick holizontalから基準速度を確定
     if(speed_turret<0){
       speed_turret *= -1;
       turret_roll = false;
     }else{
       turret_roll = true;
     }
-  }
+
+  Serial.print(speed_left);
+  Serial.print(" : ");
+  Serial.println(speed_right);
 }
 
 void send(){

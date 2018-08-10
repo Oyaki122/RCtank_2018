@@ -24,12 +24,11 @@ bool turret_done = false;
   */
 
 void stickcheck(double sticks[4]){
- // sticks[0] = sticks[0]*0.9+(((int)pulseIn(7, HIGH,500000))-500) * 0.1;
- // sticks[1] = sticks[1]*0.9+(((int)pulseIn(8, HIGH,500000))-500) * 0.1;
- sticks[0] = ((int)pulseIn(A0,HIGH,50000))-500;
- sticks[1] = ((int)pulseIn(A1,HIGH,50000))-500;
+  sticks[0] = sticks[0]*0.9+(analogRead(A0)-1023/2) * 0.1;
+  sticks[1] = sticks[1]*0.9+(analogRead(A1)-1023/2) * 0.1;
   sticks[2] = sticks[2]*0.9+(analogRead(A2)-1023/2) * 0.1;
   sticks[3] = sticks[3]*0.9+(analogRead(A3)-1023/2) * 0.1;
+
 
 
 if(sticks[0]==-500){
@@ -54,7 +53,7 @@ if(sticks[1]==-500){
   for(i=0;i<=3;i++){
     deg = (sticks[i]>0)? 1 : -1;
     sticks[i] = (abs(sticks[i])<STICK_IDLE) ? 0 : sticks[i]-(STICK_IDLE*deg);
-    sticks[i] = constrain(sticks[i]*0.8, -400, 400);
+    sticks[i] = constrain(sticks[i], -400, 400);
   }
   
 }
@@ -179,7 +178,7 @@ void setup()
   pinMode(A4, INPUT);
   Serial.begin(9600);
   Serial.println("serialstart");
-
+  analogReference(EXTERNAL);
  
 }
 

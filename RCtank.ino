@@ -1,4 +1,4 @@
-
+#include <Arduino.h>
 #define STICK_IDLE 5
 #define VRNG (410-deg)
 
@@ -38,7 +38,7 @@ if(sticks[0]==-500){
     sticks[0]=-500;
   }
 }
-if(sticks[1]==-500){
+if(sticks[1]　==　-500){
   if(analogRead(A1)>600){
     sticks[1]=500;
   }else{

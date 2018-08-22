@@ -31,12 +31,27 @@ void stickcheck(double sticks[4]){
 
 
 
+<<<<<<< HEAD
   if(sticks[0]==-500){
     if(analogRead(A0)>600){
       sticks[0]=500;
     }else{
       sticks[0]=-500;
     }
+=======
+if(sticks[0]==-500){
+  if(analogRead(A0)>600){
+    sticks[0]=500;
+  }else{
+    sticks[0]=-500;
+  }
+}
+if(sticks[1]　==　-500){
+  if(analogRead(A1)>600){
+    sticks[1]=500;
+  }else{
+    sticks[1]=-500;
+>>>>>>> dual-pins
   }
   if(sticks[1]　==　-500){
     if(analogRead(A1)>600){

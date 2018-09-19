@@ -3,15 +3,15 @@
 #define VRNG (410-deg)
 
 
-bool cats=[];
+
 bool cat_common;
-bool cats=[]; //left-0,right-1,turret-2
-float speeds=[];
+bool cats[3]; //left-0,right-1,turret-2
+float speeds[3];
 float speed_common;
 bool r_l;
 bool ultra_pivot_turn = false;
 bool turret_done = false;
-
+double sticks[4];
 
 /*bool direction[4]
   int speed[4]
@@ -20,53 +20,33 @@ bool turret_done = false;
   bool r_l
   */
 
-void stickcheck(double sticks[4]){
+void stickcheck(){
 	sticks[0] = sticks[0]*0.9+(analogRead(A0)-1023/2) * 0.1;
 	sticks[1] = sticks[1]*0.9+(analogRead(A1)-1023/2) * 0.1;
 	sticks[2] = sticks[2]*0.9+(analogRead(A2)-1023/2) * 0.1;
-	sticks[3] = sticks[3]*0.9+(analogRead(A3)-1023/2) * 0.1;
 
-
-
-	if(sticks[0]==-500){
-		if(analogRead(A0)>600){
-			sticks[0]=500;
-		}else{
-			sticks[0]=-500;
-		}
-	}
-	if(sticks[1]　==　-500){
-		if(analogRead(A1)>600){
-			sticks[1]=500;
-		}else{
-			sticks[1]=-500;
-		}
-	if(sticks[1]　==　-500){
-		if(analogRead(A1)>600){
-		sticks[1]=500;
-		}else{
-		sticks[1]=-500;
-		}
-  	}  
-
+ 	Serial.println(analogRead(A0));
 	char i;
 	char deg;
-	for(i=0;i<=3;i++){
+	for(i=0;i<3;i++){
 		deg = (sticks[i]>0)? 1 : -1;
 		sticks[i] = (abs(sticks[i])<STICK_IDLE) ? 0 : sticks[i]-(STICK_IDLE*deg);
+		
 		sticks[i] = constrain(sticks[i], -400, 400);
 	}
-  
+   
+	 
 }
 
 
 void decider(){
-	double sticks[4];
-	stickcheck(sticks);
 	
-	Serial.print(sticks[0]);
-	Serial.print(':');
-	Serial.println(sticks[1]);
+	stickcheck();
+	
+	// Serial.print(sticks[0]);
+	// Serial.print(':');
+	// Serial.println(sticks[1]);
+
 
 	double level;
 	if(sticks[1]<0){
@@ -127,7 +107,7 @@ void decider(){
 	// Serial.print(':');
 	// Serial.println(speeds[1]);
   	}
-  	speeds[2]= sticks[3]*51/80; //Rstick holizontalから基準速度を確定
+  	speeds[2]= sticks[2]*51/80; //Rstick holizontalから基準速度を確定
 
 	if(speeds[2]<0){
 	  	speeds[2] *= -1;
@@ -138,14 +118,16 @@ void decider(){
 }
 
 void send(){
-	byte pins=[3,5,6,9,10,11];
-	for(byte i=0;i<3;i++){
+	char pins[6]={3,5,6,9,10,11};
+	for(char i=0;i<3;i++){
+		
 		if(cats[i]){
-			analogWrite(pins[i],speeds[i]);
+			analogWrite(pins[2*i],(byte)speeds[i]);
 			digitalWrite(pins[2*i+1],LOW);
+			
 		}else{
 			digitalWrite(pins[2*i],LOW);
-			analogWrite(pins[2*i+1],speeds[i]);
+			analogWrite(pins[2*i+1],(byte)speeds[i]);
 		}
 	}
 	

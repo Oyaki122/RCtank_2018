@@ -1,4 +1,4 @@
-#include <Arduino.h>
+
 #define STICK_IDLE 5
 #define VRNG (410-deg)
 
@@ -25,7 +25,7 @@ void stickcheck(){
 	sticks[1] = sticks[1]*0.9+(analogRead(A1)-1023/2) * 0.1;
 	sticks[2] = sticks[2]*0.9+(analogRead(A2)-1023/2) * 0.1;
 
- 	Serial.println(analogRead(A0));
+	Serial.println(analogRead(A0));
 	char i;
 	char deg;
 	for(i=0;i<3;i++){
@@ -80,6 +80,7 @@ void decider(){
 		}else{
 			cat_common = true;
 		}
+		
 
 	
 		/* double level;  //旋回の基準数値を算出
